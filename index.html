@@ -3,156 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSTF | نظام التحديات الاحترافي</title>
+    <title>MSTF Ultra | الرابط المباشر</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         :root { --p: #38bdf8; --bg: #0b1120; --card: #1e293b; --accent: #fbbf24; --green: #10b981; --red: #ef4444; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: white; text-align: center; margin: 0; padding-bottom: 50px; overflow-x: hidden; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: white; text-align: center; margin: 0; padding-bottom: 50px; }
         .hidden { display: none !important; }
         .box { background: var(--card); padding: 20px; border-radius: 20px; margin: 15px auto; max-width: 650px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         .btn { cursor: pointer; border-radius: 12px; border: none; font-weight: bold; transition: 0.2s; padding: 15px; color: white; }
-        .btn:active { transform: scale(0.98); }
         input, textarea { background: #0f172a; color: white; border: 1px solid var(--p); padding: 12px; border-radius: 10px; margin: 5px; font-size: 1rem; width: 90%; }
         .btn-hint { background: #2d3748; width: 100%; margin: 8px 0; text-align: right; border: 1px solid var(--p); font-size: 1.1rem; }
         
-        /* شاشة العرض التراكمية */
+        /* شاشة العرض */
         #displayHint { font-size: 2.2rem; color: var(--p); min-height: 450px; padding: 30px; font-weight: bold; text-align: right; display: flex; flex-direction: column; gap: 15px; }
-        .hint-entry { animation: slideIn 0.4s ease-out; padding: 15px; background: rgba(255,255,255,0.03); border-right: 5px solid var(--p); border-radius: 5px; line-height: 1.4; }
+        .hint-entry { animation: slideIn 0.4s ease-out; padding: 15px; background: rgba(255,255,255,0.03); border-right: 5px solid var(--p); border-radius: 5px; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
         
-        .score-bar { display:flex; justify-content: space-around; background: #000; padding: 20px; border-bottom: 6px solid var(--p); font-size: 2.5rem; font-weight: 900; position: sticky; top: 0; z-index: 100; }
-        
-        /* نافذة المساعدة (Modal) */
-        #helpModal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 500px; background: #1e293b; border: 2px solid var(--p); border-radius: 20px; padding: 20px; z-index: 1000; text-align: right; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; }
+        .score-bar { display:flex; justify-content: space-around; background: #000; padding: 20px; border-bottom: 6px solid var(--p); font-size: 2.5rem; font-weight: 900; }
+        .copy-link { background: var(--green); color: black; padding: 10px; border-radius: 10px; cursor: pointer; display: inline-block; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="setupView" style="padding: 50px 10px;">
-        <h1 style="color:var(--p); font-size: 5rem; letter-spacing: 5px; margin: 0;">MSTF</h1>
+        <h1 style="color:var(--p); font-size: 5rem; margin: 0;">MSTF</h1>
         <div class="box">
-            <p>رمز الغرفة للاتصال:</p>
-            <div id="myIdDisplay" style="font-size: 4.5rem; color: var(--accent); font-weight: 900; margin: 10px 0;">....</div>
-            <input type="text" id="joinIdInput" placeholder="أدخل رمز الشاشة في الجوال">
-            <button class="btn" style="background:var(--p); width:100%; margin-top:15px; font-size: 1.2rem;" onclick="startAsAdmin()">دخول كمقدم (Admin) 📱</button>
-            <button class="btn" style="background:#444; width:100%; margin-top:10px;" onclick="startAsDisplay()">فتح شاشة العرض (TV) 📺</button>
-            <button class="btn" style="background:#2d3748; width:100%; margin-top:10px; color: var(--accent);" onclick="toggleHelp()">مساعدة 💡 (طريقة الإضافة السريعة)</button>
+            <button class="btn" style="background:var(--p); width:100%; font-size: 1.5rem;" onclick="startAsDisplay()">ابدأ كـ "شاشة عرض" 📺</button>
+            <p style="margin-top: 20px; opacity: 0.6;">أو إذا وصلك رابط دعوة، افتحه مباشرة.</p>
         </div>
-    </div>
-
-    <div id="helpOverlay" class="overlay hidden" onclick="toggleHelp()"></div>
-    <div id="helpModal" class="hidden">
-        <h2 style="color: var(--p);">كيفية إضافة الأسئلة بسرعة:</h2>
-        <p>في لوحة التحكم، استخدم مربع <b>الرفع الجماعي (Bulk)</b>. اكتب كل سؤال في سطر واحد بهذا التنسيق:</p>
-        <p dir="ltr" style="background: #000; padding: 10px; border-radius: 10px; font-size: 0.8rem; color: var(--accent);">
-            الإجابة، تلميح1، تلميح2، تلميح3، تلميح4، تلميح5
-        </p>
-        <p>مثال:<br>ميسي، أرجنتيني، يلعب في أمريكا، رقم 10، فاز بكأس العالم، البرغوث</p>
-        <button class="btn" style="background: var(--p); width: 100%;" onclick="toggleHelp()">فهمت ✅</button>
     </div>
 
     <div id="displayView" class="hidden">
         <div class="score-bar">
-            <div>فريق 1: <span id="ds1" style="color:var(--accent)">0</span></div>
-            <div style="color: var(--p); font-size: 1.5rem; align-self: center;">MSTF</div>
-            <div>فريق 2: <span id="ds2" style="color:var(--accent)">0</span></div>
+            <div><span id="dsName1">فريق 1</span>: <span id="ds1" style="color:var(--accent)">0</span></div>
+            <div style="color: var(--p); font-size: 1.2rem; align-self: center;">MSTF</div>
+            <div><span id="dsName2">فريق 2</span>: <span id="ds2" style="color:var(--accent)">0</span></div>
         </div>
-        <div id="displayHint" style="max-width: 90%; margin: 40px auto;">بانتظار السؤال الأول...</div>
+        <div id="inviteArea" class="box">
+            <p>أرسل هذا الرابط لصديقك للتحكم:</p>
+            <div class="copy-link" onclick="copyInviteLink()">نسخ رابط الدعوة 🔗</div>
+        </div>
+        <div id="displayHint">بانتظار المقدم...</div>
     </div>
 
     <div id="adminView" class="hidden">
-        <div class="box" style="border: 2px solid var(--accent);">
-            <h3 style="color: var(--accent);">⚡ الرفع الجماعي السريع</h3>
-            <textarea id="bulkInput" rows="4" placeholder="الإجابة، ت1، ت2، ت3، ت4، ت5"></textarea>
+        <h2 style="color: var(--p);">لوحة تحكم MSTF 📱</h2>
+        
+        <div class="box">
+            <p style="font-size: 0.8rem; color: var(--accent);">تعديل أسماء الفرق:</p>
+            <input type="text" id="team1Input" placeholder="اسم الفريق الأول" oninput="updateNames()" style="width:40%;">
+            <input type="text" id="team2Input" placeholder="اسم الفريق الثاني" oninput="updateNames()" style="width:40%;">
+        </div>
+
+        <div class="box">
+            <h3 style="color: var(--accent);">⚡ الرفع الجماعي</h3>
+            <textarea id="bulkInput" rows="3" placeholder="الإجابة،ت1،ت2،ت3،ت4،ت5"></textarea>
             <button class="btn" style="background:var(--accent); color: black; width:100%;" onclick="importBulk()">استيراد الأسئلة 🚀</button>
         </div>
 
         <div class="box">
-            <button class="btn" style="background:var(--p); width:100%;" onclick="nextQuestion()">سحب سؤال عشوائي 🚀</button>
-            <p id="qCount" style="font-size: 0.8rem; opacity: 0.5; margin: 8px 0;">الأسئلة المتوفرة: 0</p>
-            <button class="btn" style="background:var(--red); font-size: 0.7rem; padding: 5px 10px;" onclick="clearBank()">مسح البنك 🧹</button>
+            <button class="btn" style="background:var(--p); width:100%;" onclick="nextQuestion()">سحب سؤال عشوائي 🎲</button>
+            <p id="qCount" style="font-size: 0.8rem; opacity: 0.5; margin-top:5px;">الأسئلة: 0</p>
         </div>
 
-        <div id="hintsControl" class="box hidden" style="border: 2px solid var(--accent);">
-            <h2 id="ansDisplay" style="color:var(--accent); font-size: 1.8rem;">الإجابة: ؟؟؟</h2>
+        <div id="hintsControl" class="box hidden">
+            <h2 id="ansDisplay" style="color:var(--accent)">؟؟؟</h2>
             <div id="hintButtonsArea"></div>
         </div>
 
         <div class="box">
-            <div style="display: flex; gap: 10px;">
-                <button class="btn" style="background:var(--green); flex: 1;" onclick="addScore(1)">+ فريق 1</button>
-                <button class="btn" style="background:var(--green); flex: 1;" onclick="addScore(2)">+ فريق 2</button>
+            <p>إضافة نقاط مخصصة:</p>
+            <input type="number" id="pointsAmount" value="50" style="width: 100px; text-align: center; font-size: 1.5rem;">
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="btn" style="background:var(--green); flex: 1;" onclick="addScore(1)">+ للفريق 1</button>
+                <button class="btn" style="background:var(--green); flex: 1;" onclick="addScore(2)">+ للفريق 2</button>
             </div>
-            <button class="btn" style="background:var(--red); width: 100%; margin-top: 15px;" onclick="resetScores()">تصفير النقاط 🔄</button>
+            <button class="btn" style="background:var(--red); width: 100%; margin-top: 15px;" onclick="resetScores()">تصفير النتيجة 🔄</button>
         </div>
     </div>
 
     <script>
-        let myQuestions = JSON.parse(localStorage.getItem('mstf_v_final')) || [];
-        const customId = Math.floor(1000 + Math.random() * 9000).toString();
-        const peer = new Peer(customId);
-        let conn, s1 = 0, s2 = 0, currentQ;
+        let myQuestions = JSON.parse(localStorage.getItem('mstf_v5')) || [];
+        let peer, conn, s1 = 0, s2 = 0, currentQ;
+        let t1Name = "فريق 1", t2Name = "فريق 2";
 
-        peer.on('open', id => { document.getElementById('myIdDisplay').innerText = id; updateQCount(); });
+        // التحقق من وجود ID في الرابط (دعوة مباشرة)
+        const urlParams = new URLSearchParams(window.location.search);
+        const inviteId = urlParams.get('join');
 
-        function toggleHelp() {
-            document.getElementById('helpOverlay').classList.toggle('hidden');
-            document.getElementById('helpModal').classList.toggle('hidden');
+        if (inviteId) {
+            startAsAdmin(inviteId);
         }
-
-        function importBulk() {
-            const text = document.getElementById('bulkInput').value;
-            const lines = text.split('\n');
-            let added = 0;
-            lines.forEach(line => {
-                const parts = line.split('،');
-                const partsAlt = line.split(',');
-                const finalParts = parts.length >= 6 ? parts : partsAlt;
-                if(finalParts.length >= 6) {
-                    myQuestions.push({
-                        name: finalParts[0].trim(),
-                        hints: [finalParts[1].trim(), finalParts[2].trim(), finalParts[3].trim(), finalParts[4].trim(), finalParts[5].trim()]
-                    });
-                    added++;
-                }
-            });
-            localStorage.setItem('mstf_v_final', JSON.stringify(myQuestions));
-            alert(`تم استيراد ${added} سؤال بنجاح!`);
-            document.getElementById('bulkInput').value = "";
-            updateQCount();
-        }
-
-        function clearBank() { if(confirm("هل تريد مسح جميع الأسئلة؟")) { myQuestions = []; localStorage.setItem('mstf_v_final', JSON.stringify([])); updateQCount(); } }
-        function updateQCount() { document.getElementById('qCount').innerText = "الأسئلة المتوفرة: " + myQuestions.length; }
 
         function startAsDisplay() {
+            const displayId = Math.floor(1000 + Math.random() * 9000).toString();
+            peer = new Peer(displayId);
             document.getElementById('setupView').classList.add('hidden');
             document.getElementById('displayView').classList.remove('hidden');
+            
+            peer.on('open', id => {
+                window.currentRoomId = id;
+            });
+
             peer.on('connection', c => {
                 conn = c;
+                document.getElementById('inviteArea').classList.add('hidden');
                 conn.on('data', d => {
                     const ha = document.getElementById('displayHint');
                     if (d.type === 'hint') {
                         if (ha.innerText.includes("بانتظار") || ha.innerText.includes("سحب")) ha.innerHTML = "";
                         ha.innerHTML += `<div class="hint-entry">${d.msg}</div>`;
                     }
-                    if (d.type === 'clear') ha.innerHTML = `<div style="color:gray; font-size:1.2rem;">جاري سحب سؤال جديد...</div>`;
-                    if (d.type === 'score') { document.getElementById('ds1').innerText = d.s1; document.getElementById('ds2').innerText = d.s2; }
+                    if (d.type === 'clear') ha.innerHTML = `<div style="color:gray;">جاري سحب سؤال...</div>`;
+                    if (d.type === 'score') { 
+                        document.getElementById('ds1').innerText = d.s1; 
+                        document.getElementById('ds2').innerText = d.s2; 
+                    }
+                    if (d.type === 'names') {
+                        document.getElementById('dsName1').innerText = d.n1;
+                        document.getElementById('dsName2').innerText = d.n2;
+                    }
                 });
             });
         }
 
-        function startAsAdmin() {
-            const tid = document.getElementById('joinIdInput').value;
-            if(!tid) return alert("أدخل الرمز!");
-            conn = peer.connect(tid);
-            conn.on('open', () => {
-                document.getElementById('setupView').classList.add('hidden');
-                document.getElementById('adminView').classList.remove('hidden');
+        function startAsAdmin(id) {
+            peer = new Peer();
+            peer.on('open', () => {
+                conn = peer.connect(id);
+                conn.on('open', () => {
+                    document.getElementById('setupView').classList.add('hidden');
+                    document.getElementById('adminView').classList.remove('hidden');
+                    updateQCount();
+                });
             });
         }
 
+        function copyInviteLink() {
+            const link = window.location.origin + window.location.pathname + "?join=" + window.currentRoomId;
+            navigator.clipboard.writeText(link);
+            alert("تم نسخ رابط الدعوة! أرسله لصديقك الآن.");
+        }
+
+        function updateNames() {
+            t1Name = document.getElementById('team1Input').value || "فريق 1";
+            t2Name = document.getElementById('team2Input').value || "فريق 2";
+            conn.send({ type: 'names', n1: t1Name, n2: t2Name });
+        }
+
+        function importBulk() {
+            const text = document.getElementById('bulkInput').value;
+            const lines = text.split('\n');
+            lines.forEach(line => {
+                const parts = line.split(/[،,]/);
+                if(parts.length >= 6) {
+                    myQuestions.push({ name: parts[0].trim(), hints: parts.slice(1,6).map(h => h.trim()) });
+                }
+            });
+            localStorage.setItem('mstf_v5', JSON.stringify(myQuestions));
+            alert("تمت الإضافة!");
+            document.getElementById('bulkInput').value = "";
+            updateQCount();
+        }
+
+        function updateQCount() { document.getElementById('qCount').innerText = "الأسئلة: " + myQuestions.length; }
+        
         function nextQuestion() {
             if(myQuestions.length === 0) return alert("البنك فارغ!");
             currentQ = myQuestions[Math.floor(Math.random() * myQuestions.length)];
@@ -166,7 +181,12 @@
             conn.send({ type: 'clear' });
         }
 
-        function addScore(t) { t === 1 ? s1 += 50 : s2 += 50; conn.send({ type: 'score', s1, s2 }); }
+        function addScore(t) { 
+            const p = parseInt(document.getElementById('pointsAmount').value) || 0;
+            t === 1 ? s1 += p : s2 += p; 
+            conn.send({ type: 'score', s1, s2 }); 
+        }
+
         function resetScores() { s1 = 0; s2 = 0; conn.send({ type: 'score', s1, s2 }); }
     </script>
 </body>
