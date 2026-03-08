@@ -3,92 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحدي SARZIX | نسخة الصور السريعة</title>
+    <title>MSTF | نظام التحديات الاحترافي</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        :root { --p: #38bdf8; --bg: #0f172a; --card: #1e293b; --accent: #fbbf24; --green: #10b981; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: white; text-align: center; margin: 0; overflow-x: hidden; }
+        :root { --p: #38bdf8; --bg: #0b1120; --card: #1e293b; --accent: #fbbf24; --green: #10b981; --red: #ef4444; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: white; text-align: center; margin: 0; padding-bottom: 50px; }
         .hidden { display: none !important; }
-        button { cursor: pointer; border-radius: 12px; border: none; font-weight: bold; transition: 0.2s; }
-        .header { display: flex; justify-content: space-around; align-items: center; background: var(--card); padding: 15px; font-size: 1.8rem; border-bottom: 5px solid var(--p); }
-        #timerBox { font-size: 3rem; background: #000; padding: 5px 25px; border-radius: 15px; color: var(--accent); border: 2px solid var(--p); }
-        #pixelImg { width: 450px; height: 450px; border-radius: 25px; margin-top: 20px; filter: blur(80px); object-fit: cover; border: 6px solid var(--card); transition: filter 0.4s linear; background: #222; }
-        #myIdDisplay { font-size: 2.5rem; color: var(--accent); margin: 10px 0; font-weight: bold; }
-        .box { background: var(--card); padding: 20px; border-radius: 20px; margin: 15px auto; max-width: 450px; border: 1px solid rgba(255,255,255,0.1); }
-        input, select { width: 90%; padding: 15px; margin: 10px 0; border-radius: 10px; background: #0f172a; color: white; border: 1px solid var(--p); font-size: 1.1rem; }
-        .btn-main { background: var(--p); color: white; width: 100%; padding: 18px; font-size: 1.4rem; margin-top: 10px; }
-        .btn-action { background: var(--green); color: white; width: 48%; padding: 15px; font-size: 1.1rem; }
+        .box { background: var(--card); padding: 20px; border-radius: 20px; margin: 15px auto; max-width: 650px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .btn { cursor: pointer; border-radius: 12px; border: none; font-weight: bold; transition: 0.2s; padding: 15px; color: white; display: inline-block; }
+        .btn:active { transform: scale(0.95); }
+        input, select { background: #0f172a; color: white; border: 1px solid var(--p); padding: 12px; border-radius: 10px; margin: 5px; font-size: 1rem; width: 90%; }
+        .btn-hint { background: #2d3748; width: 100%; margin: 8px 0; text-align: right; border: 1px solid var(--p); font-size: 1.1rem; }
+        .btn-hint:hover { background: var(--p); color: #000; }
+        #displayHint { font-size: 2.8rem; color: var(--p); min-height: 350px; display: flex; align-items: center; justify-content: center; padding: 30px; font-weight: bold; line-height: 1.4; text-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .score-box { display:flex; justify-content: space-around; background: #000; padding: 25px; border-bottom: 6px solid var(--p); font-size: 2.5rem; font-weight: 900; }
     </style>
 </head>
 <body>
 
-    <div id="setupView" style="padding: 50px 10px;">
-        <h1 style="color: var(--p); font-size: 4rem; margin:0;">SARZIX</h1>
+    <div id="setupView" style="padding: 60px 10px;">
+        <h1 style="color:var(--p); font-size: 5rem; letter-spacing: 5px; margin: 0;">MSTF</h1>
+        <p style="opacity: 0.6; margin-bottom: 30px;">نظام إدارة التحديات والمسابقات</p>
         <div class="box">
-            <p style="opacity: 0.6;">رمز غرفتك (أعطه للطرف الآخر):</p>
-            <div id="myIdDisplay">جاري الاتصال...</div>
-            <hr style="opacity:0.1">
-            <input type="text" id="joinIdInput" placeholder="أدخل الرمز (4 أرقام)">
-            <button class="btn-main" onclick="startAsAdmin()">دخول كمقدم 📱</button>
-            <button class="btn-main" style="background:#444" onclick="startAsDisplay()">بدء كشاشة عرض 📺</button>
+            <p>رمز الغرفة للربط:</p>
+            <div id="myIdDisplay" style="font-size: 4.5rem; color: var(--accent); font-weight: 900;">....</div>
+            <hr style="opacity: 0.1; margin: 25px;">
+            <input type="text" id="joinIdInput" placeholder="أدخل الرمز للتحكم من الجوال">
+            <button class="btn" style="background:var(--p); width:100%; margin-top:15px; font-size: 1.2rem;" onclick="startAsAdmin()">دخول كمقدم (Admin) 📱</button>
+            <button class="btn" style="background:#444; width:100%; margin-top:10px;" onclick="startAsDisplay()">بدء شاشة عرض (TV) 📺</button>
         </div>
     </div>
 
     <div id="displayView" class="hidden">
-        <div class="header">
-            <div>فريق 1: <span id="ds1" style="color:var(--accent)">0</span></div>
-            <div id="timerBox">60</div>
-            <div>فريق 2: <span id="ds2" style="color:var(--accent)">0</span></div>
+        <div class="score-box">
+            <div><span id="name1">الفريق 1</span>: <span id="ds1" style="color:var(--accent)">0</span></div>
+            <div style="color: var(--p); font-size: 1.5rem; align-self: center;">MSTF</div>
+            <div><span id="name2">الفريق 2</span>: <span id="ds2" style="color:var(--accent)">0</span></div>
         </div>
-        <img id="pixelImg" src="" onerror="this.src='https://via.placeholder.com/500?text=Image+Loading...'">
+        <div class="box" style="max-width: 90%; margin-top: 80px; background: rgba(30, 41, 59, 0.5); border: none;">
+            <div id="displayHint">بانتظار السؤال الأول من المقدم...</div>
+        </div>
     </div>
 
     <div id="adminView" class="hidden">
-        <div class="box">
-            <select id="catSelect">
-                <option value="youtubers">👤 يوتيوبرز</option>
-                <option value="players">⚽ لاعبين</option>
-                <option value="clubs">🛡️ أندية</option>
-                <option value="brands">🏢 ماركات</option>
-                <option value="food">🍕 أكلات</option>
-            </select>
-            <button class="btn-main" style="background:#8b5cf6" onclick="sendNextRound()">جولة جديدة 🚀</button>
+        <div class="box" style="border: 1px solid var(--green);">
+            <h3 style="color: var(--green);">➕ إضافة سؤال لـ MSTF</h3>
+            <input type="text" id="newAns" placeholder="الإجابة الصحيحة">
+            <input type="text" id="h1" placeholder="تلميح 1 (صعب جداً)">
+            <input type="text" id="h2" placeholder="تلميح 2">
+            <input type="text" id="h3" placeholder="تلميح 3">
+            <input type="text" id="h4" placeholder="تلميح 4">
+            <input type="text" id="h5" placeholder="تلميح 5 (سهل)">
+            <button class="btn" style="background:var(--green); width:100%; margin-top:10px;" onclick="saveQuestion()">حفظ في بنك الأسئلة ✅</button>
         </div>
+
         <div class="box">
-            <h3 id="ansDisplay" style="color:var(--accent)">الإجابة تظهر هنا</h3>
-            <div style="display:flex; gap:10px; justify-content:center;">
-                <button class="btn-action" onclick="sendScore(1)">+ فريق 1</button>
-                <button class="btn-action" onclick="sendScore(2)">+ فريق 2</button>
+            <h3>إدارة الجولة والأسماء</h3>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="inName1" placeholder="اسم فريق 1" onchange="updateNames()">
+                <input type="text" id="inName2" placeholder="اسم فريق 2" onchange="updateNames()">
             </div>
+            <button class="btn" style="background:var(--p); width:100%; margin-top:10px; font-size: 1.3rem;" onclick="nextQuestion()">سحب سؤال عشوائي 🚀</button>
+            <p id="qCount" style="font-size: 0.8rem; opacity: 0.5; margin-top: 10px;">الأسئلة المتوفرة: 0</p>
+        </div>
+
+        <div id="hintsControl" class="box hidden" style="border: 2px solid var(--accent);">
+            <h2 id="ansDisplay" style="color:var(--accent); font-size: 2.2rem;">الإجابة: ؟؟؟</h2>
+            <p style="font-size: 0.9rem; opacity: 0.7;">انقر على التلميح لإرساله للشاشة:</p>
+            <div id="hintButtonsArea"></div>
+        </div>
+
+        <div class="box">
+            <h3>التحكم بالنتيجة</h3>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 15px;">
+                <input type="number" id="pointsAmount" value="50" style="width: 80px; text-align: center; font-size: 1.5rem;">
+                <button class="btn" style="background:var(--green); flex: 1;" onclick="addScore(1)">+ فريق 1</button>
+                <button class="btn" style="background:var(--green); flex: 1;" onclick="addScore(2)">+ فريق 2</button>
+            </div>
+            <button class="btn" style="background:var(--red); width: 100%; margin-top: 20px; opacity: 0.8;" onclick="resetScores()">تصفير النقاط 🔄</button>
         </div>
     </div>
 
     <script>
-        const db = {
-            youtubers: ["أبو فلة", "بندريتا", "أوسمز", "دحومي 999", "مجرم قيمز", "سيد", "ناز", "عتبة", "مليحي", "أنس مروة", "أصالة المالح", "غيث مروان", "نارين بيوتي", "نور ستارز", "توبز", "شانكس", "باوزير", "عويد", "أحمد الشقيري", "عمر فاروق", "جو حطاب", "كريم السيد", "بشار عربي", "شعيب راشد", "مستر فيفا", "أوبلز", "صالح كحل", "عز بن فهد", "فيصل السيف", "عبدالله السبع", "أحمد بوعريكي", "أسامة مروة", "بيسان اسماعيل", "غالي", "ماهر موصلي", "فيلمر", "عمر يجرب", "أمين فنّي", "ياسر بكر", "إبراهيم باشا", "فراس الشلبي", "ياسين جيرماني", "ام سيف", "نانو", "ابن سوريا", "تاربو", "مليون روسي", "أترو", "باري تيوب", "سيمبا", "راكان سليمان", "عمر ابوزيد", "عزوز", "فيصل اكس دي", "مشيع", "روان وريان", "شفا", "دايلر", "أحمد حسن", "حمدي ووفاء", "صدام بن جدو", "الربع", "بودي قيمز", "سولار", "فالح الزهراني", "يوسف شيبان", "عبدالإله", "ريد فوكس", "نواف قيمز", "فوديني", "مستر شنب", "ديلر", "جيمر سنتر", "بدر صالح", "لؤي", "احمد الشمراني", "نايف حمدان", "منصور الرقيبة", "ابو حش", "بدر ناصر", "مشاري", "فهد سال", "خالد الفراج", "مؤيد الثقفي", "محمد الشمري", "هيا ومرام", "شيماء سيف", "فهد بن فصلا", "عبدالله الملحم", "رغد", "لانا محمد", "لين ابو شعر", "خالد صقر", "محمد الحمد", "سارة الودعاني", "مودي سكواد", "أحمد النشيط", "عمر حسين"],
-            players: ["ميسي", "رونالدو", "نيمار", "مبابي", "صلاح", "بنزيما", "فينيسيوس", "هالاند", "دي بروين", "ليفاندوفسكي", "سالم الدوسري", "محرز", "ماني", "حمدالله", "بونو", "حكيمي", "ميتروفيتش", "مالكوم", "تاليسكا", "أوتافيو", "مودريتش", "كروس", "بيلينجهام", "فودين", "ساكا", "هاري كين", "سون", "زيدان", "رونالدينيو", "بيليه", "مارادونا", "يوسف الثنيان", "ماجد عبدالله", "سامي الجابر", "الدعيع", "ياسر القحطاني", "الشلهوب", "سلمان الفرج", "البليهي", "كنو", "ياسر الشهراني", "البريكان", "غريب", "بدر المطوع", "عمر السومة", "علي مبخوت", "عموري", "المساكني", "زياش", "أمرابط", "أبو تريكة", "تريزيجيه", "حجازي", "ميندي", "كوليبالي", "كانتي", "جوتا", "فيرمينو", "كيسيه", "لابورت", "أوسبينا", "راكيتيتش", "كورتوا", "أليسون", "إيدرسون", "فان دايك", "دياز", "أراوخو", "جافي", "بيدري", "موسيالاً", "رودري", "جريزمان", "جيسوس", "إيكاردي", "راشفورد", "برونو", "صليبا", "أوديجارد", "فيرتز", "ديبالا", "لوكاكو", "أوزيل", "أجويرو", "سواريز", "بويول", "راموس", "بيكيه", "كاسياس", "بوفون", "نوير", "بوجبا", "إبراهيموفيتش", "مولر", "كيميتش", "لوتارو", "فالفيردي", "أكانجي"],
-            clubs: ["الهلال", "النصر", "الاتحاد", "الأهلي", "الشباب", "الاتفاق", "التعاون", "الفتح", "الفيحاء", "الرياض", "الوحدة", "الطائي", "ضمك", "أبها", "الأخدود", "الحزم", "العين", "الشارقة", "شباب الأهلي", "الجزيرة", "السد", "الدحيل", "الريان", "الغرافة", "الكويت", "القادسية", "العربي", "الأهلي المصري", "الزمالك", "بيراميدز", "الترجي", "الإفريقي", "النجم الساحلي", "الصفاقسي", "الوداد", "الرجاء", "الجيش الملكي", "مولودية الجزائر", "شبيبة القبائل", "وفاق سطيف", "ريال مدريد", "برشلونة", "أتلتيكو مدريد", "إشبيلية", "مانشستر سيتي", "مانشستر يونايتد", "ليفربول", "أرسنال", "تشيلسي", "توتنهام", "نيوكاسل", "أستون فيلا", "بايرن ميونخ", "بوروسيا دورتموند", "ليفركوزن", "لايبزيج", "يوفنتوس", "ميلان", "إنتر ميلان", "نابولي", "روما", "لاتسيو", "باريس سان جيرمان", "موناكو", "مارسيليا", "ليون", "أياكس", "آيندهوفن", "بنفيكا", "بورتو", "فلامنجو", "باليراس", "بوكا جونيورز", "ريفير بليت", "أوراوا", "صن داونز", "مازيمبي", "نيويورك سيتي", "النصر الليبي", "تشرين", "العربي القطري", "المحرق", "الرفاع", "الفيصلي", "الوحدات", "الزوراء", "القوة الجوية", "الشرطة", "نادي قطر", "الخالدية", "كاظمة", "السالمية", "العربي الكويتي"],
-            brands: ["أبل", "سامسونج", "هواوي", "سوني", "مايكروسوفت", "جوجل", "أمازون", "نايكي", "أديداس", "بوما", "أندر آرمور", "ستاربكس", "دانكن", "ماكدونالدز", "برجر كنج", "كنتاكي", "هارديز", "بيتزا هات", "دومينوز", "بيبسي", "كوكاكولا", "ريد بول", "تويوتا", "لكزس", "مرسيدس", "بي إم دبليو", "أودي", "تسلا", "هيونداي", "كيا", "فورد", "نيسان", "هوندا", "رولكس", "كاسيو", "شانيل", "ديور", "غوتشي", "لويس فيتون", "زارا", "إتش آند إم", "آيكيا", "نون", "نمشي", "علي بابا", "إيباي", "ديزني", "نتفليكس", "يوتيوب", "تيك توك", "سناب شات", "إنستغرام", "واتساب", "تويتر", "فيسبوك", "كانون", "نيكون", "باناسونيك", "إل جي", "توشيبا", "ديل", "إتش بي", "لينوفو", "أسوس", "إنتل", "إنفيديا", "ريزر", "لوجيتيك", "أوميغا", "كارتييه", "فيراري", "لامبورغيني", "بنتلي", "رولز رويس", "بورشه", "جيب", "لاند روفر", "شل", "أرامكو", "سابك", "إس تي سي", "موبايلي", "زين", "الراجحي", "البنك الأهلي", "طيران الإمارات", "الخطوط السعودية", "الخطوط القطرية", "نسكافيه", "كيت كات", "جالكسي", "نوتيلا", "ليز", "برينجلز", "أوريو"],
-            food: ["كبسة", "مندي", "مظبي", "حنيذ", "جريش", "قرصان", "سليق", "مرقوق", "مطازيز", "عريكة", "معصوب", "فول", "تميس", "شكشوكة", "كبدة", "شاورما", "فلافل", "حمص", "متبل", "ورق عنب", "كبة", "تبولة", "فتوش", "منسف", "مسخن", "مقلوبة", "ملوخية", "كشري", "حمام محشي", "محشي كرنب", "بامية", "مسقعة", "كفتة", "طرب", "شيش طاووق", "برجر", "بيتزا", "باستا", "لازانيا", "سوشي", "نودلز", "رامن", "بروستد", "ستيك", "تاكو", "بوريتو", "ناتشوز", "كيسادييا", "فاهيتا", "بايا", "ريزوتو", "كرواسون", "بان كيك", "وافل", "كريب", "تشيز كيك", "تيراميسو", "براونيز", "كنافة", "بسبوسة", "لقيمات", "بلح الشام", "أم علي", "رز بلبن", "قطايف", "بقلاوة", "معمول", "عصيدة", "هريس", "ثريد", "مجبوس", "برياني", "تكا ماسالا", "دجاج زبدة", "سمبوسة", "شوربة عدس", "شوربة فطر", "جمبري", "سلمون", "لوبستر", "صيادية", "سمك مشوي", "باشميل", "كوزي", "مبشور", "بخاري", "مضغوط", "كاري", "دونات", "آيس كريم", "سينابون", "تارت", "مكرونة بالجبن", "نوجيت"]
-        };
-
-        const tags = { youtubers: "person", players: "football", clubs: "soccer", brands: "logo", food: "food" };
-
+        let myQuestions = JSON.parse(localStorage.getItem('mstf_questions')) || [];
         const customId = Math.floor(1000 + Math.random() * 9000).toString();
-        const peer = new Peer(customId, { config: { 'iceServers': [{ url: 'stun:stun.l.google.com:19302' }] } });
-        
-        let conn, s1 = 0, s2 = 0, timerInterval;
+        const peer = new Peer(customId);
+        let conn, s1 = 0, s2 = 0, currentQ;
 
-        peer.on('open', (id) => { document.getElementById('myIdDisplay').innerText = id; });
+        peer.on('open', id => {
+            document.getElementById('myIdDisplay').innerText = id;
+            updateQCount();
+        });
 
+        // حفظ الأسئلة
+        function saveQuestion() {
+            const name = document.getElementById('newAns').value;
+            const hints = [
+                document.getElementById('h1').value,
+                document.getElementById('h2').value,
+                document.getElementById('h3').value,
+                document.getElementById('h4').value,
+                document.getElementById('h5').value
+            ];
+            if(!name || hints.some(h => !h)) return alert("يرجى ملء جميع الخانات!");
+            
+            myQuestions.push({name, hints});
+            localStorage.setItem('mstf_questions', JSON.stringify(myQuestions));
+            alert("تم الحفظ في MSTF!");
+            updateQCount();
+            document.getElementById('newAns').value = "";
+            for(let i=1; i<=5; i++) document.getElementById('h'+i).value = "";
+        }
+
+        function updateQCount() {
+            document.getElementById('qCount').innerText = "الأسئلة المتوفرة في بنكك: " + myQuestions.length;
+        }
+
+        // تشغيل شاشة العرض
         function startAsDisplay() {
             document.getElementById('setupView').classList.add('hidden');
             document.getElementById('displayView').classList.remove('hidden');
-            peer.on('connection', (c) => { conn = c; conn.on('data', handleData); });
+            peer.on('connection', c => {
+                conn = c;
+                conn.on('data', d => {
+                    if (d.type === 'hint') document.getElementById('displayHint').innerText = d.msg;
+                    if (d.type === 'clear') document.getElementById('displayHint').innerText = "جاري اختيار تلميحة...";
+                    if (d.type === 'score') { document.getElementById('ds1').innerText = d.s1; document.getElementById('ds2').innerText = d.s2; }
+                    if (d.type === 'names') { document.getElementById('name1').innerText = d.n1; document.getElementById('name2').innerText = d.n2; }
+                });
+            });
         }
 
+        // تشغيل لوحة التحكم
         function startAsAdmin() {
             const targetId = document.getElementById('joinIdInput').value;
+            if(!targetId) return alert("أدخل رمز الشاشة أولاً!");
             conn = peer.connect(targetId);
             conn.on('open', () => {
                 document.getElementById('setupView').classList.add('hidden');
@@ -96,34 +145,39 @@
             });
         }
 
-        function handleData(d) {
-            if (d.type === 'round') startTimer(d.img);
-            if (d.type === 'score') { document.getElementById('ds1').innerText = d.s1; document.getElementById('ds2').innerText = d.s2; }
+        // اختيار سؤال جديد
+        function nextQuestion() {
+            if(myQuestions.length === 0) return alert("البنك فارغ! ضيف أسئلة أولاً.");
+            currentQ = myQuestions[Math.floor(Math.random() * myQuestions.length)];
+            document.getElementById('ansDisplay').innerText = "الإجابة: " + currentQ.name;
+            document.getElementById('hintsControl').classList.remove('hidden');
+            
+            let html = "";
+            currentQ.hints.forEach((h, i) => {
+                html += `<button class="btn btn-hint" onclick="conn.send({type:'hint', msg:'${h}'})">${i+1}️⃣ ${h}</button>`;
+            });
+            document.getElementById('hintButtonsArea').innerHTML = html;
+            conn.send({ type: 'clear' });
         }
 
-        function sendNextRound() {
-            const cat = document.getElementById('catSelect').value;
-            const name = db[cat][Math.floor(Math.random() * db[cat].length)];
-            document.getElementById('ansDisplay').innerText = "الإجابة: " + name;
-            // استخدام Unsplash المصدر الأقوى والأسرع
-            const img = `https://source.unsplash.com/featured/500x500/?${tags[cat]},${encodeURIComponent(name)}`;
-            conn.send({ type: 'round', img: img });
+        // التحكم بالنقاط والأسماء
+        function addScore(t) {
+            const pts = parseInt(document.getElementById('pointsAmount').value);
+            t === 1 ? s1 += pts : s2 += pts;
+            conn.send({ type: 'score', s1, s2 });
         }
 
-        function sendScore(t) { if(t===1) s1+=10; else s2+=10; conn.send({ type: 'score', s1, s2 }); }
+        function resetScores() {
+            if(confirm("تصفير النتيجة؟")) {
+                s1 = 0; s2 = 0;
+                conn.send({ type: 'score', s1, s2 });
+            }
+        }
 
-        function startTimer(url) {
-            const img = document.getElementById('pixelImg');
-            img.src = url; 
-            img.style.filter = "blur(80px)";
-            let count = 60;
-            clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                count--;
-                document.getElementById('timerBox').innerText = count;
-                img.style.filter = `blur(${(count / 60) * 80}px)`;
-                if (count <= 0) { clearInterval(timerInterval); img.style.filter = "blur(0px)"; }
-            }, 1000);
+        function updateNames() {
+            const n1 = document.getElementById('inName1').value || "الفريق 1";
+            const n2 = document.getElementById('inName2').value || "الفريق 2";
+            conn.send({ type: 'names', n1, n2 });
         }
     </script>
 </body>
